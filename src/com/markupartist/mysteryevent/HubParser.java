@@ -58,7 +58,6 @@ public class HubParser extends DefaultHandler {
 
     public void endElement(String uri, String name, String qName)
                 throws SAXException {
-        // TODO: Add geo location
         if (currentHangout != null) {
             if (name.trim().equals("title")) {
                 currentHangout.setTitle(currentText);
