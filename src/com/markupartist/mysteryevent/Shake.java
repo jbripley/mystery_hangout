@@ -3,6 +3,7 @@ package com.markupartist.mysteryevent;
 import java.text.DecimalFormat;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -35,42 +36,7 @@ public class Shake extends Activity {
         im.setOnClickListener(new OnClickListener(){
 
 			public void onClick(View v) {
-		        final LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-				vibe.vibrate(300);
-				ProgressDialog.show(Shake.this, "", 
-				        getText(R.string.loading), true);
-
-		        Location loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-		        OAuthHttpHelper httpHelper = new OAuthHttpHelper(CONSUMER_KEY, CONSUMER_SECRET);
-		        MysteryService mysteryService = new MysteryService(httpHelper);
-		        Hangout hangout = null;
-		        try {
-                    //String latitude = "52.35554";
-                    //String longitude = "4.88856";
-		            
-		            DecimalFormat fmt = new DecimalFormat();
-		            fmt.setMinimumFractionDigits(2);
-		            fmt.setMaximumFractionDigits(5);
-		            String latitude = fmt.format(loc.getLatitude());
-		            String longitude = fmt.format(loc.getLongitude());
-
-		            Log.e("Shake", "Searching lat:" + latitude + "lon:" + longitude);
-                    hangout = mysteryService.getRandomHangoutByGeoLocation(latitude, longitude);
-
-                    Log.d("Shake", hangout.getTitle());
-                    Log.d("Shake", hangout.getLongitude());
-                    Log.d("Shake", hangout.getLatitude());
-
-                    // open maps view
-                    startDirectionActivity(
-                            loc.getLatitude() + "," + loc.getLongitude(),
-                            hangout.getLatitude() + "," + hangout.getLongitude());
-                } catch (HangoutNotFoundException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                }
+			    wasShaken();
 			}
         	
         });
@@ -79,59 +45,51 @@ public class Shake extends Activity {
         mShaker.setOnShakeListener(new ShakeListener.OnShakeListener () {
           public void onShake()
           {
-              final LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
-
-              vibe.vibrate(300);
-              ProgressDialog.show(Shake.this, "", 
-                      getText(R.string.loading), true);
-
-              Location loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-
-              OAuthHttpHelper httpHelper = new OAuthHttpHelper(CONSUMER_KEY, CONSUMER_SECRET);
-              MysteryService mysteryService = new MysteryService(httpHelper);
-              Hangout hangout = null;
-              try {
-                  //String latitude = "52.35554";
-                  //String longitude = "4.88856";
-                  
-                  DecimalFormat fmt = new DecimalFormat();
-                  fmt.setMinimumFractionDigits(2);
-                  fmt.setMaximumFractionDigits(5);
-                  String latitude = fmt.format(loc.getLatitude());
-                  String longitude = fmt.format(loc.getLongitude());
-
-                  Log.e("Shake", "Searching lat:" + latitude + "lon:" + longitude);
-                  hangout = mysteryService.getRandomHangoutByGeoLocation(latitude, longitude);
-
-                  Log.d("Shake", hangout.getTitle());
-                  Log.d("Shake", hangout.getLongitude());
-                  Log.d("Shake", hangout.getLatitude());
-
-                  // open maps view
-                  startDirectionActivity(
-                          loc.getLatitude() + "," + loc.getLongitude(),
-                          hangout.getLatitude() + "," + hangout.getLongitude());
-              } catch (HangoutNotFoundException e) {
-                  // TODO Auto-generated catch block
-                  e.printStackTrace();
-              }
+              wasShaken();
           }
         });
     }
-    
+
     protected void wasShaken() {
         final LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        mShaker.pause();
-		vibe.vibrate(300);
-		ProgressDialog.show(Shake.this, "", 
-		        getText(R.string.loading), true);
-        
+        vibe.vibrate(300);
+        ProgressDialog progressDialog = ProgressDialog.show(Shake.this, "", 
+                getText(R.string.loading), true);
+
         Location loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
-        
-        // open maps view
-		startDirectionActivity("", "");
+        OAuthHttpHelper httpHelper = new OAuthHttpHelper(CONSUMER_KEY, CONSUMER_SECRET);
+        MysteryService mysteryService = new MysteryService(httpHelper);
+        Hangout hangout = null;
+        try {
+            DecimalFormat fmt = new DecimalFormat();
+            fmt.setMinimumFractionDigits(2);
+            fmt.setMaximumFractionDigits(5);
+
+            String latitude = fmt.format(loc.getLatitude());
+            String longitude = fmt.format(loc.getLongitude());
+
+            //String latitude = "52.35554";
+            //String longitude = "4.88856";
+
+            Log.e("Shake", "Shake searching lat:" + latitude + "lon:" + longitude);
+            hangout = mysteryService.getRandomHangoutByGeoLocation(latitude, longitude);
+
+            Log.d("Shake", hangout.getTitle());
+            Log.d("Shake", hangout.getLongitude());
+            Log.d("Shake", hangout.getLatitude());
+
+            // open maps view
+            startDirectionActivity(
+                    loc.getLatitude() + "," + loc.getLongitude(),
+                    hangout.getLatitude() + "," + hangout.getLongitude());
+            finish(); // Done for now.
+        } catch (HangoutNotFoundException e) {
+            // TODO Auto-generated catch block
+            progressDialog.dismiss();
+            e.printStackTrace();
+        }
 	}
 
 	private void startDirectionActivity(String start, String destination)
