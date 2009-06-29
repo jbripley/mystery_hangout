@@ -10,7 +10,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Vibrator;
 import android.util.Log;
 
 public class Shake extends Activity {
@@ -23,6 +28,25 @@ public class Shake extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        final Vibrator vibe = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+        
+        final ShakeListener mShaker = new ShakeListener(this);
+        
+        ProgressDialog dialog;
+        
+        mShaker.setOnShakeListener(new ShakeListener.OnShakeListener () {
+          public void onShake()
+          {
+			mShaker.pause();
+			vibe.vibrate(300);
+			ProgressDialog.show(Shake.this, "", 
+			        getText(R.string.loading), true);
+            // open maps view
+			startDirectionActivity("", "");
+          }
+        });
+        
+        
         OAuthHttpHelper httpHelper = new OAuthHttpHelper(CONSUMER_KEY, CONSUMER_SECRET);
 
         List<NameValuePair> params = new ArrayList<NameValuePair>();
@@ -50,5 +74,18 @@ public class Shake extends Activity {
             e.printStackTrace();
         }
 
+        
+        
+        
     }
+    
+    private void startDirectionActivity(String start, String destination)
+    {
+    	 start = "Fredriksplein 7, amsterdam";
+         destination = "leidseplein, amsterdam";
+        
+        startActivity(new Intent(Intent.ACTION_VIEW,  
+                Uri.parse("http://maps.google.com/maps?f=d&saddr=" + start + "&daddr=" + destination + "&hl=en&dirflg=w")));    	
+    }
+    
 }
