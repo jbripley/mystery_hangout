@@ -3,4 +3,5 @@
     <string name="hello">Please Shake Me!</string>
     <string name="app_name">MysteryEvent</string>
 <string name="loading">Socializing...</string>
+<string name="shake">SHAKE!</string>
 </resources>

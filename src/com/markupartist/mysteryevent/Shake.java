@@ -27,7 +27,6 @@ public class Shake extends Activity {
         vibe = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
         mShaker = new ShakeListener(this);
         
-        
         ImageView im = (ImageView) findViewById(R.id.shake_imageview);
         
         im.setOnClickListener(new OnClickListener(){
@@ -38,7 +37,6 @@ public class Shake extends Activity {
 			}
         	
         });
-        
         mShaker.setOnShakeListener(new ShakeListener.OnShakeListener () {
           public void onShake()
           {
