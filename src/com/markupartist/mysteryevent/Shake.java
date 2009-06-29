@@ -9,10 +9,10 @@ import android.location.LocationManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
-import android.widget.Toast;
 
 public class Shake extends Activity {
     private static String CONSUMER_KEY = "";
@@ -39,11 +39,31 @@ public class Shake extends Activity {
 				vibe.vibrate(300);
 				ProgressDialog.show(Shake.this, "", 
 				        getText(R.string.loading), true);
-		        
+
 		        Location loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
 
+		        OAuthHttpHelper httpHelper = new OAuthHttpHelper(CONSUMER_KEY, CONSUMER_SECRET);
+		        MysteryService mysteryService = new MysteryService(httpHelper);
+		        Hangout hangout = null;
+		        try {
+		            String latitude = "52.35554";
+		            String longitude = "4.88856";
+                    hangout = mysteryService.getRandomHangoutByGeoLocation(latitude, longitude);
+                } catch (HangoutNotFoundException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                }
+
+                Log.d("Shake", hangout.getTitle());
+                Log.d("Shake", hangout.getLongitude());
+                Log.d("Shake", hangout.getLatitude());
+                
 		        // open maps view
-				startDirectionActivity("", "");
+                /*
+				startDirectionActivity(
+				        loc.getLatitude() + "," + loc.getLongitude(),
+				        hangout.getLatitude() + "," + hangout.getLongitude());
+		        */
 			}
         	
         });
@@ -75,10 +95,7 @@ public class Shake extends Activity {
 
 	private void startDirectionActivity(String start, String destination)
     {
-    	 start = "Fredriksplein 7, amsterdam";
-         destination = "leidseplein, amsterdam";
-        
-        startActivity(new Intent(Intent.ACTION_VIEW,  
+         startActivity(new Intent(Intent.ACTION_VIEW,  
                 Uri.parse("http://maps.google.com/maps?f=d&saddr=" + start + "&daddr=" + destination + "&hl=en&dirflg=w")));    	
     }
     

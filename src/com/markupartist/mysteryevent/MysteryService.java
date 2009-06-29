@@ -7,9 +7,8 @@ import java.util.List;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
-import org.json.JSONException;
-import org.json.JSONObject;
 
+import android.location.Location;
 import android.util.Log;
 
 public class MysteryService {
@@ -23,6 +22,7 @@ public class MysteryService {
 
     public Hangout getRandomHangoutByGeoLocation(String latitude, String longitude) 
         throws HangoutNotFoundException {
+
         ArrayList<Hangout> hangouts = getHangoutsByGeoLocation(latitude, longitude);
         Hangout hangout = null;
         if (hangouts.size() == 0) {

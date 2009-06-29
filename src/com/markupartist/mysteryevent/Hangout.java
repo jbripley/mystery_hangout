@@ -1,10 +1,12 @@
 package com.markupartist.mysteryevent;
 
+import android.location.Location;
+
 public class Hangout {
     private String title;
     private String latitude;
     private String longitude;
-
+    
     public String getTitle() {
         return title;
     }
