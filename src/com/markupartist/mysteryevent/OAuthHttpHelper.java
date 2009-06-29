@@ -54,7 +54,7 @@ public class OAuthHttpHelper {
         }
     }
 
-    public String post(String url, List<NameValuePair> params) {
+    public InputStream post(String url, List<NameValuePair> params) {
         httpPost = new HttpPost(url);
 
         UrlEncodedFormEntity entity = null;
@@ -66,12 +66,14 @@ public class OAuthHttpHelper {
         httpPost.setEntity(entity);
 
         response = null;
+        InputStream responseStream = null;
         String data = "";
         try {
             consumer.sign(httpPost);
             
             response = httpClient.execute(httpPost, localContext);
-            data = convertStreamToString(response.getEntity().getContent());
+            //data = convertStreamToString(response.getEntity().getContent());
+            responseStream = response.getEntity().getContent();
         } catch (ClientProtocolException e) {
             System.out.println("HTTPHelp : ClientProtocolException : " + e);
         } catch (IOException e) {
@@ -83,8 +85,8 @@ public class OAuthHttpHelper {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }
-
-        return data;
+        return responseStream;
+        //return data;
     }
 
     /**
