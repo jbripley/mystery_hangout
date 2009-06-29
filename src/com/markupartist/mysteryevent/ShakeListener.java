@@ -6,13 +6,15 @@ package com.markupartist.mysteryevent;
  * http://www.apache.org/licenses/LICENSE-2.0
  */
 
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
 import android.hardware.SensorListener;
 import android.hardware.SensorManager;
 import android.content.Context;
 import java.lang.UnsupportedOperationException;
 
-@SuppressWarnings("deprecation")
-public class ShakeListener implements SensorListener 
+public class ShakeListener implements SensorEventListener 
 {
   private static final int FORCE_THRESHOLD = 350;
   private static final int TIME_THRESHOLD = 100;
@@ -50,25 +52,26 @@ public class ShakeListener implements SensorListener
     if (mSensorMgr == null) {
       throw new UnsupportedOperationException("Sensors not supported");
     }
-    boolean supported = mSensorMgr.registerListener(this, SensorManager.SENSOR_ACCELEROMETER, SensorManager.SENSOR_DELAY_GAME);
+    boolean supported = mSensorMgr.registerListener(this, mSensorMgr.getDefaultSensor(SensorManager.SENSOR_ACCELEROMETER), SensorManager.SENSOR_DELAY_GAME);
     if (!supported) {
-      mSensorMgr.unregisterListener(this, SensorManager.SENSOR_ACCELEROMETER);
+      mSensorMgr.unregisterListener(this, mSensorMgr.getDefaultSensor(SensorManager.SENSOR_ACCELEROMETER));
       throw new UnsupportedOperationException("Accelerometer not supported");
     }
   }
 
   public void pause() {
     if (mSensorMgr != null) {
-      mSensorMgr.unregisterListener(this, SensorManager.SENSOR_ACCELEROMETER);
+      mSensorMgr.unregisterListener(this, mSensorMgr.getDefaultSensor(SensorManager.SENSOR_ACCELEROMETER));
       mSensorMgr = null;
     }
   }
 
-  public void onAccuracyChanged(int sensor, int accuracy) { }
+  public void onAccuracyChanged(Sensor se, int i) { }
 
-  public void onSensorChanged(int sensor, float[] values) 
+  public void onSensorChanged(SensorEvent se) 
   {
-    if (sensor != SensorManager.SENSOR_ACCELEROMETER) return;
+	float[] values = se.values;
+    if (se.sensor.getType() != Sensor.TYPE_ACCELEROMETER) return;
     long now = System.currentTimeMillis();
 
     if ((now - mLastForce) > SHAKE_TIMEOUT) {
