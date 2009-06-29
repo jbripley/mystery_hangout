@@ -1,5 +1,7 @@
 package com.markupartist.mysteryevent;
 
+import java.text.DecimalFormat;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -27,7 +29,6 @@ public class Shake extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        
         vibe = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
         ImageView im = (ImageView) findViewById(R.id.shake_imageview);
         
@@ -46,36 +47,76 @@ public class Shake extends Activity {
 		        MysteryService mysteryService = new MysteryService(httpHelper);
 		        Hangout hangout = null;
 		        try {
-		            String latitude = "52.35554";
-		            String longitude = "4.88856";
+                    //String latitude = "52.35554";
+                    //String longitude = "4.88856";
+		            
+		            DecimalFormat fmt = new DecimalFormat();
+		            fmt.setMinimumFractionDigits(2);
+		            fmt.setMaximumFractionDigits(5);
+		            String latitude = fmt.format(loc.getLatitude());
+		            String longitude = fmt.format(loc.getLongitude());
+
+		            Log.e("Shake", "Searching lat:" + latitude + "lon:" + longitude);
                     hangout = mysteryService.getRandomHangoutByGeoLocation(latitude, longitude);
+
+                    Log.d("Shake", hangout.getTitle());
+                    Log.d("Shake", hangout.getLongitude());
+                    Log.d("Shake", hangout.getLatitude());
+
+                    // open maps view
+                    startDirectionActivity(
+                            loc.getLatitude() + "," + loc.getLongitude(),
+                            hangout.getLatitude() + "," + hangout.getLongitude());
                 } catch (HangoutNotFoundException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                 }
-
-                Log.d("Shake", hangout.getTitle());
-                Log.d("Shake", hangout.getLongitude());
-                Log.d("Shake", hangout.getLatitude());
-                
-		        // open maps view
-                /*
-				startDirectionActivity(
-				        loc.getLatitude() + "," + loc.getLongitude(),
-				        hangout.getLatitude() + "," + hangout.getLongitude());
-		        */
 			}
         	
         });
-/*
+
         mShaker = new ShakeListener(this);
         mShaker.setOnShakeListener(new ShakeListener.OnShakeListener () {
           public void onShake()
           {
-          	return;
+              final LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+
+              vibe.vibrate(300);
+              ProgressDialog.show(Shake.this, "", 
+                      getText(R.string.loading), true);
+
+              Location loc = lm.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+
+              OAuthHttpHelper httpHelper = new OAuthHttpHelper(CONSUMER_KEY, CONSUMER_SECRET);
+              MysteryService mysteryService = new MysteryService(httpHelper);
+              Hangout hangout = null;
+              try {
+                  //String latitude = "52.35554";
+                  //String longitude = "4.88856";
+                  
+                  DecimalFormat fmt = new DecimalFormat();
+                  fmt.setMinimumFractionDigits(2);
+                  fmt.setMaximumFractionDigits(5);
+                  String latitude = fmt.format(loc.getLatitude());
+                  String longitude = fmt.format(loc.getLongitude());
+
+                  Log.e("Shake", "Searching lat:" + latitude + "lon:" + longitude);
+                  hangout = mysteryService.getRandomHangoutByGeoLocation(latitude, longitude);
+
+                  Log.d("Shake", hangout.getTitle());
+                  Log.d("Shake", hangout.getLongitude());
+                  Log.d("Shake", hangout.getLatitude());
+
+                  // open maps view
+                  startDirectionActivity(
+                          loc.getLatitude() + "," + loc.getLongitude(),
+                          hangout.getLatitude() + "," + hangout.getLongitude());
+              } catch (HangoutNotFoundException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+              }
           }
         });
-*/
     }
     
     protected void wasShaken() {
