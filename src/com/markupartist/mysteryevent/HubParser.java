@@ -69,6 +69,7 @@ public class HubParser extends DefaultHandler {
         }
 
         if (name.trim().equals("hub")) {
+            Log.d(TAG, "Adding hangout " + currentHangout.getTitle());
             hangouts.add(currentHangout);
         }
     }
