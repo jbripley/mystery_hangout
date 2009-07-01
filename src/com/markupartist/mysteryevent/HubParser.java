@@ -19,12 +19,12 @@ import android.util.Log;
 
 public class HubParser extends DefaultHandler {
     private static final String TAG = "HubParser";
-    ArrayList<Hangout> hangouts = new ArrayList<Hangout>();
-    private String currentText;
-    private Hangout currentHangout = null;
+    private ArrayList<Hub> mHubs = new ArrayList<Hub>();
+    private String mCurrentText;
+    private Hub mCurrentHub = null;
 
-    public ArrayList<Hangout> getHangouts(InputStream inputStream) {
-        hangouts.clear();
+    public ArrayList<Hub> getHubs(InputStream inputStream) {
+        mHubs.clear();
         try {
             SAXParserFactory spf = SAXParserFactory.newInstance();
             SAXParser sp = spf.newSAXParser();
@@ -43,34 +43,34 @@ public class HubParser extends DefaultHandler {
             Log.e(TAG, e.toString());
         }
 
-        return hangouts;
+        return mHubs;
     }
 
     public void startElement(String uri, String name, String qName, Attributes atts) {
         if (name.trim().equals("hub")) {
-            currentHangout = new Hangout();
+            mCurrentHub = new Hub();
         }
     }
 
     public void characters(char ch[], int start, int length) {
-        currentText = (new String(ch).substring(start, start + length));
+        mCurrentText = (new String(ch).substring(start, start + length));
     }
 
     public void endElement(String uri, String name, String qName)
                 throws SAXException {
-        if (currentHangout != null) {
+        if (mCurrentHub != null) {
             if (name.trim().equals("title")) {
-                currentHangout.setTitle(currentText);
+                mCurrentHub.setTitle(mCurrentText);
             } else if (name.trim().equals("latitude")) {
-                currentHangout.setLatitude(currentText);
+                mCurrentHub.setLatitude(mCurrentText);
             } else if (name.trim().equals("longitude")) {
-                currentHangout.setLongitude(currentText);
+                mCurrentHub.setLongitude(mCurrentText);
             }
         }
 
         if (name.trim().equals("hub")) {
-            Log.d(TAG, "Adding hangout " + currentHangout.getTitle());
-            hangouts.add(currentHangout);
+            Log.d(TAG, "Adding hangout " + mCurrentHub.getTitle());
+            mHubs.add(mCurrentHub);
         }
     }
 }

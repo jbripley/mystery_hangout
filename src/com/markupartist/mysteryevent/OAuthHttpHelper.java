@@ -26,28 +26,26 @@ import org.apache.http.protocol.HttpContext;
  * Hacked up class, should be separated, but we leave that for another time.
  */
 public class OAuthHttpHelper {
-    DefaultHttpClient httpClient = new DefaultHttpClient();
-    HttpContext localContext = new BasicHttpContext();
-    HttpResponse response = null;
-    HttpPost httpPost = null;
-    OAuthConsumer consumer;
-    String consumerKey;
-    String consumerSecret;
+    private DefaultHttpClient mHttpClient = new DefaultHttpClient();
+    private HttpContext mLocalContext = new BasicHttpContext();
+    private HttpResponse mResponse = null;
+    private HttpPost mHttpPost = null;
+    private OAuthConsumer mConsumer;
 
     public OAuthHttpHelper(String consumerKey, String consumerSecret) {
-        consumer = new CommonsHttpOAuthConsumer(consumerKey, consumerSecret, 
+        mConsumer = new CommonsHttpOAuthConsumer(consumerKey, consumerSecret, 
                 SignatureMethod.HMAC_SHA1);
     }
 
     public void clearCookies() {
-        httpClient.getCookieStore().clear();
+        mHttpClient.getCookieStore().clear();
     }
 
     public void abort() {
         try {
-            if (httpClient != null) {
+            if (mHttpClient != null) {
                 System.out.println("Abort.");
-                httpPost.abort();
+                mHttpPost.abort();
             }
         } catch (Exception e) {
             System.out.println("HTTPHelp : Abort Exception : " + e);
@@ -55,7 +53,7 @@ public class OAuthHttpHelper {
     }
 
     public InputStream post(String url, List<NameValuePair> params) {
-        httpPost = new HttpPost(url);
+        mHttpPost = new HttpPost(url);
 
         UrlEncodedFormEntity entity = null;
         try {
@@ -63,17 +61,17 @@ public class OAuthHttpHelper {
         } catch (UnsupportedEncodingException e1) {
             e1.printStackTrace();
         }
-        httpPost.setEntity(entity);
+        mHttpPost.setEntity(entity);
 
-        response = null;
+        mResponse = null;
         InputStream responseStream = null;
         String data = "";
         try {
-            consumer.sign(httpPost);
+            mConsumer.sign(mHttpPost);
             
-            response = httpClient.execute(httpPost, localContext);
+            mResponse = mHttpClient.execute(mHttpPost, mLocalContext);
             //data = convertStreamToString(response.getEntity().getContent());
-            responseStream = response.getEntity().getContent();
+            responseStream = mResponse.getEntity().getContent();
         } catch (ClientProtocolException e) {
             System.out.println("HTTPHelp : ClientProtocolException : " + e);
         } catch (IOException e) {

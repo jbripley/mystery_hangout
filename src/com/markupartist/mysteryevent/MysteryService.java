@@ -8,38 +8,37 @@ import java.util.List;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
-import android.location.Location;
-import android.util.Log;
-
 public class MysteryService {
     private static final String TAG = "MysteryService";
     private static String API_URL = "http://data.hyves-api.nl";
-    private OAuthHttpHelper httpHelper;
+
+    private OAuthHttpHelper mHttpHelper;
 
     public MysteryService(OAuthHttpHelper httpHelper) {
-        this.httpHelper = httpHelper;
+        mHttpHelper = httpHelper;
     }
 
-    public Hangout getRandomHangoutByGeoLocation(String latitude, String longitude) 
+    public Hub getRandomHangoutByGeoLocation(String latitude, String longitude) 
         throws HangoutNotFoundException {
 
-        ArrayList<Hangout> hangouts = getHangoutsByGeoLocation(latitude, longitude);
-        Hangout hangout = null;
-        if (hangouts.size() == 0) {
+        ArrayList<Hub> hubs = getHangoutsByGeoLocation(latitude, longitude);
+        Hub hangout = null;
+        if (hubs.size() == 0) {
+            // TODO: If not found try a new search but with a wider radius repeat to we reach 10000.
             throw new HangoutNotFoundException("No hangout found for location");
         }
 
-        Collections.shuffle(hangouts);
-        hangout = hangouts.get(0);
+        Collections.shuffle(hubs);
+        hangout = hubs.get(0);
         return hangout;
     }
 
-    private ArrayList<Hangout> getHangoutsByGeoLocation(String latitude, String longitude) {
+    private ArrayList<Hub> getHangoutsByGeoLocation(String latitude, String longitude) {
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("ha_method", "hubs.getBySpatialRadiusMostPopulair"));
         params.add(new BasicNameValuePair("latitude", latitude));
         params.add(new BasicNameValuePair("longitude", longitude));
-        params.add(new BasicNameValuePair("radius", "5000"));
+        params.add(new BasicNameValuePair("radius", "2000"));
         params.add(new BasicNameValuePair("hubtype", "hangout"));
         params.add(new BasicNameValuePair("ha_resultsperpage", "50"));
         params.add(new BasicNameValuePair("ha_responsefields", "geolocation,hubaddress,hubopeninghours"));
@@ -47,9 +46,10 @@ public class MysteryService {
         params.add(new BasicNameValuePair("ha_fancylayout", "false"));
         params.add(new BasicNameValuePair("ha_version", "experimental"));
 
-        InputStream result = httpHelper.post(API_URL, params);
+        InputStream result = mHttpHelper.post(API_URL, params);
         HubParser hubParser = new HubParser();
-        ArrayList<Hangout> hangouts = hubParser.getHangouts(result);
+        ArrayList<Hub> hangouts = hubParser.getHubs(result);
+
         return hangouts;
     }
 }

@@ -3,7 +3,6 @@ package com.markupartist.mysteryevent;
 import java.text.DecimalFormat;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -18,11 +17,12 @@ import android.view.View.OnClickListener;
 import android.widget.ImageView;
 
 public class Shake extends Activity {
+    private static final String TAG = "Shake";
     private static String CONSUMER_KEY = "";
     private static String CONSUMER_SECRET = "";
 
-    Vibrator vibe;
-    ShakeListener mShaker;
+    private Vibrator mVibe;
+    private ShakeListener mShaker;
 
     /** Called when the activity is first created. */
     @Override
@@ -30,30 +30,28 @@ public class Shake extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
-        vibe = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
+        mVibe = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
         ImageView im = (ImageView) findViewById(R.id.shake_imageview);
-        
-        im.setOnClickListener(new OnClickListener(){
 
+        im.setOnClickListener(new OnClickListener(){
 			public void onClick(View v) {
 			    wasShaken();
 			}
-        	
         });
 
+        // Shaker stuff needs to be commented out when testing in the emulator...
         mShaker = new ShakeListener(this);
         mShaker.setOnShakeListener(new ShakeListener.OnShakeListener () {
-          public void onShake()
-          {
-              wasShaken();
-          }
+            public void onShake() {
+                wasShaken();
+            }
         });
     }
 
     protected void wasShaken() {
         final LocationManager lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
 
-        vibe.vibrate(300);
+        mVibe.vibrate(300);
         ProgressDialog progressDialog = ProgressDialog.show(Shake.this, "", 
                 getText(R.string.loading), true);
 
@@ -61,7 +59,7 @@ public class Shake extends Activity {
 
         OAuthHttpHelper httpHelper = new OAuthHttpHelper(CONSUMER_KEY, CONSUMER_SECRET);
         MysteryService mysteryService = new MysteryService(httpHelper);
-        Hangout hangout = null;
+        Hub hangout = null;
         try {
             DecimalFormat fmt = new DecimalFormat();
             fmt.setMinimumFractionDigits(2);
@@ -73,29 +71,35 @@ public class Shake extends Activity {
             //String latitude = "52.35554";
             //String longitude = "4.88856";
 
-            Log.e("Shake", "Shake searching lat:" + latitude + "lon:" + longitude);
+            Log.d(TAG, "Shake searching lat:" + latitude + "lon:" + longitude);
             hangout = mysteryService.getRandomHangoutByGeoLocation(latitude, longitude);
 
-            Log.d("Shake", hangout.getTitle());
-            Log.d("Shake", hangout.getLongitude());
-            Log.d("Shake", hangout.getLatitude());
+            Log.d(TAG, hangout.getTitle());
+            Log.d(TAG, hangout.getLongitude());
+            Log.d(TAG, hangout.getLatitude());
 
             // open maps view
             startDirectionActivity(
-                    loc.getLatitude() + "," + loc.getLongitude(),
+                    latitude + "," + longitude,
                     hangout.getLatitude() + "," + hangout.getLongitude());
-            finish(); // Done for now.
         } catch (HangoutNotFoundException e) {
-            // TODO Auto-generated catch block
+            // TODO: Need to handle this in the view!
             progressDialog.dismiss();
-            e.printStackTrace();
+            Log.i(TAG, e.getMessage());
         }
 	}
 
-	private void startDirectionActivity(String start, String destination)
-    {
-         startActivity(new Intent(Intent.ACTION_VIEW,  
-                Uri.parse("http://maps.google.com/maps?f=d&saddr=" + start + "&daddr=" + destination + "&hl=en&dirflg=w")));    	
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG, "Closing application");
+        finish();
+    }
+
+	private void startDirectionActivity(String start, String destination) {
+	    startActivity(new Intent(Intent.ACTION_VIEW,  
+                Uri.parse("http://maps.google.com/maps?f=d&saddr=" + start 
+                        + "&daddr=" + destination + "&hl=en&dirflg=w")));    	
     }
     
 }

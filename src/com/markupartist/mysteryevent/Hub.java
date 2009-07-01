@@ -1,35 +1,31 @@
 package com.markupartist.mysteryevent;
 
-import android.location.Location;
+public class Hub {
+    private String mTitle;
+    private String mLatitude;
+    private String mLongitude;
 
-public class Hangout {
-    private String title;
-    private String latitude;
-    private String longitude;
-    
     public String getTitle() {
-        return title;
+        return mTitle;
     }
 
     public void setTitle(String title) {
-        this.title = title;
+        this.mTitle = title;
     }
 
     public String getLatitude() {
-        return latitude;
+        return mLatitude;
     }
 
     public void setLatitude(String latitude) {
-        this.latitude = latitude;
+        this.mLatitude = latitude;
     }
 
     public String getLongitude() {
-        return longitude;
+        return mLongitude;
     }
 
     public void setLongitude(String longitude) {
-        this.longitude = longitude;
-    }
-
-    
+        this.mLongitude = longitude;
+    }    
 }
